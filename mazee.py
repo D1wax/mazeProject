@@ -17,16 +17,13 @@ class Cell:
     # объявление клетки и ее стен
     def __init__(self, x, y):
         self.x, self.y = x, y
+        self.visited = False
         self.walls = {'top': True, 
                       'right': True, 
                       'bottom': True, 
                       'left': True}
-        self.visited = False
-    # текущая клетка
-    def draw_current_cell(self):
-        x, y = self.x * tile, self.y * tile
-        pygame.draw.rect(sc, (150,150,150), (x + 2, y + 2, tile - 2, tile - 2))
-    # отрисовка клетки
+      
+            # отрисовка клетки
     def draw(self):
         x, y = self.x * tile, self.y * tile
         if self.visited:
@@ -39,7 +36,11 @@ class Cell:
         if self.walls['bottom']:
             pygame.draw.line(sc, c_border, (x + tile, y + tile), (x , y + tile), 3)
         if self.walls['left']:
-            pygame.draw.line(sc, c_border, (x, y + tile), (x, y), 3)
+            pygame.draw.line(sc, c_border, (x, y + tile), (x, y), 3)# текущая клетка
+    def draw_cur_cell(self):
+        x, y = self.x * tile, self.y * tile
+        pygame.draw.rect(sc, (150,150,150), (x + 2, y + 2, tile - 2, tile - 2))
+    
     #проверка клетки по формуле нахождения индекса в одномерном массиве, зная координаты x,y в двумерном
     def check_index(self, x, y):
         if x < 0 or x > cols - 1 or y < 0 or y > rows - 1:
@@ -82,30 +83,30 @@ def del_walls(current, next):
 #сетка с клетками
 grid_cells = [Cell(col, row) for row in range(rows) for col in range(cols)]
 #координата текущей клетки
-current_cell = grid_cells[0]
+cur_cell = grid_cells[0]
 stack = []
 #цвет поля
 color2 = 99,22,33
 
 while True:
     sc.fill(color2)
-
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             exit()
     for cell in grid_cells:
         cell.draw()
-    current_cell.visited = True
-    current_cell.draw_current_cell()
+    cur_cell.visited = True
+    cur_cell.draw_cur_cell()
 
-    next_cell = current_cell.check_neighbors()
+    next_cell = cur_cell.check_neighbors()
     if next_cell:
         next_cell.visited = True
-        stack.append(current_cell)
-        del_walls(current_cell, next_cell)
-        current_cell = next_cell
+        stack.append(cur_cell)
+        del_walls(cur_cell, next_cell)
+        cur_cell = next_cell
+    #возвращение к превидущим клеткам
     elif stack:
-        current_cell = stack.pop()
+        cur_cell = stack.pop()
 
     pygame.display.flip()
     clock.tick(60)
